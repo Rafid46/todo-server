@@ -44,20 +44,39 @@ async function run() {
       res.send(result);
     });
     // delete
-    app.delete("/todo/tasks:id", async (req, res) => {
+    app.delete("/todo/tasks/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await taskCollection.deleteOne(query);
       res.send(result);
     });
     // patch for dnd
-    app.patch("/todo/tasks:id", async (req, res) => {
+    app.patch("/todo/tasks/patch/:id", async (req, res) => {
       const taskId = req.params.id;
       const { status } = req.body;
-      const result = taskCollection.updateOne(
+      const result = await taskCollection.updateOne(
         { _id: new ObjectId(taskId) },
         { $set: { status } }
       );
+      res.send(result);
+    });
+    // update task
+    app.patch("/todo/tasks/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+
+      const list = req.body;
+      console.log("Received data:", req.body);
+      const Info = {
+        $set: {
+          name: list.name,
+          description: list.description,
+          deadline: list.deadline,
+          priority: list.priority,
+        },
+      };
+      const result = await taskCollection.updateOne(filter, Info);
+      console.log("update result", result);
       res.send(result);
     });
     await client.connect();
